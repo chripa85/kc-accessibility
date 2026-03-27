@@ -1,0 +1,57 @@
+name: Release Mod
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build mod
+        run: msbuild src\kc-accessibility\kc-accessibility.csproj /t:Build /p:Configuration=Release
+
+      - name: Package staged mod
+        shell: cmd
+        run: scripts\package-mod.cmd
+
+      - name: Resolve release metadata
+        id: release_meta
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            $env:GITHUB_REF_NAME
+          } else {
+            "manual-" + $env:GITHUB_RUN_NUMBER
+          }
+          $asset = "kc-accessibility-$version.zip"
+          Copy-Item "dist\kc-accessibility.zip" "dist\$asset" -Force
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "asset_name=$asset" >> $env:GITHUB_OUTPUT
+
+      - name: Upload packaged mod artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.release_meta.outputs.asset_name }}
+          path: dist/${{ steps.release_meta.outputs.asset_name }}
+
+      - name: Create GitHub release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.version }}
+          name: ${{ steps.release_meta.outputs.version }}
+          generate_release_notes: true
+          files: dist/${{ steps.release_meta.outputs.asset_name }}

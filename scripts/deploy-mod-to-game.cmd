@@ -16,12 +16,16 @@ if not exist "%SOURCE_MOD_DIR%" (
 
 if not exist "%TARGET_MOD_DIR%" mkdir "%TARGET_MOD_DIR%"
 
+for %%F in ("%TARGET_MOD_DIR%\*") do (
+  if /I not "%%~aF"=="d" del /F /Q "%%~fF" >nul
+)
+
 for %%F in ("%SOURCE_MOD_DIR%\*") do (
   if /I not "%%~aF"=="d" copy /Y "%%~fF" "%TARGET_MOD_DIR%\%%~nxF" >nul
 )
 
 if exist "%TARGET_MOD_DIR%\output.txt" del /F /Q "%TARGET_MOD_DIR%\output.txt"
 
-echo Deployed staged mod files to "%TARGET_MOD_DIR%"
+echo Mirrored staged mod files to "%TARGET_MOD_DIR%"
 echo Cleared "%TARGET_MOD_DIR%\output.txt"
 exit /b 0

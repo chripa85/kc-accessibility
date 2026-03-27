@@ -459,5 +459,8 @@ $RECYCLE.BIN/
 # Generated staged mod output
 mod/**
 
+# Local packaged release output
+dist/
+
 # Local-only research, decompiled references, and machine-specific notes
 local/

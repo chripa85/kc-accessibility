@@ -50,6 +50,14 @@ msbuild src\kc-accessibility\kc-accessibility.csproj /t:Build /p:Configuration=D
 
 The post-build step stages the mod into `mod/kc-accessibility/`.
 
+To package the staged mod into a distributable zip, use:
+
+```powershell
+cmd /c scripts\package-mod.cmd
+```
+
+That creates `dist/kc-accessibility.zip`.
+
 ## Deploy
 
 Deploy the staged mod with:
@@ -57,6 +65,22 @@ Deploy the staged mod with:
 ```powershell
 cmd /c scripts\deploy-mod-to-game.cmd
 ```
+
+## Releases
+
+GitHub Actions builds and releases the mod on Windows when you push a tag that starts with `v`, for example:
+
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The workflow:
+
+- builds `src\kc-accessibility\kc-accessibility.csproj` in `Release`
+- stages `mod/kc-accessibility/`
+- zips that staged mod folder
+- publishes the zip as a GitHub release asset
 
 ## Repository Layout
 
