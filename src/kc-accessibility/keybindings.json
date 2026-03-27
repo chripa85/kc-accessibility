@@ -1,0 +1,115 @@
+{
+  "Version": 1,
+  "NavigateUp": [
+    {
+      "Key": "E"
+    }
+  ],
+  "NavigateDown": [
+    {
+      "Key": "D"
+    }
+  ],
+  "NavigateLeft": [
+    {
+      "Key": "S"
+    }
+  ],
+  "NavigateRight": [
+    {
+      "Key": "F"
+    }
+  ],
+  "NavigateNext": [
+    {
+      "Key": "Tab",
+      "DisallowShift": true
+    }
+  ],
+  "NavigatePrevious": [
+    {
+      "Key": "Tab",
+      "RequireShift": true
+    }
+  ],
+  "Submit": [],
+  "SubmitAlternate": [
+    {
+      "Key": "Space"
+    }
+  ],
+  "Cancel": [],
+  "OpenBuildMenu": [
+    {
+      "Key": "B"
+    }
+  ],
+  "ResourceMenu": [
+    {
+      "Key": "R"
+    }
+  ],
+  "FastMoveModifier": [
+    {
+      "Key": "LeftShift"
+    },
+    {
+      "Key": "RightShift"
+    }
+  ],
+  "SetSpeedControlUI1": [
+    {
+      "Key": "Space"
+    }
+  ],
+  "SetSpeedControlUI2": [
+    {
+      "Key": "Alpha1"
+    }
+  ],
+  "SetSpeedControlUI3": [
+    {
+      "Key": "Alpha2"
+    }
+  ],
+  "SetSpeedControlUI4": [
+    {
+      "Key": "Alpha3"
+    }
+  ],
+  "ChopShortcut": [
+    {
+      "Key": "C"
+    }
+  ],
+  "EscapeButtonBehavior": [
+    {
+      "Key": "Escape"
+    }
+  ],
+  "KeepAnchor": [
+    {
+      "Key": "H"
+    }
+  ],
+  "CycleMatchingTiles": [
+    {
+      "Key": "W"
+    }
+  ],
+  "MeshAwareness": [
+    {
+      "Key": "V"
+    }
+  ],
+  "RotateBuilding": [
+    {
+      "Key": "T"
+    }
+  ],
+  "DeleteBuilding": [
+    {
+      "Key": "Delete"
+    }
+  ]
+}

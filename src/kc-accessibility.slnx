@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="kc-accessibility/kc-accessibility.csproj" />
+  <Project Path="kc-accessibility.TextUtils.Tests/kc-accessibility.TextUtils.Tests.csproj" />
+</Solution>
