@@ -3,7 +3,7 @@ using UnityEngine;
 public class ScreenReaderLoadMod
 {
 	private const string InitialAnnouncement = "Kingdoms and Castles loaded.";
-	private const string BuildStamp = "0.2.2-dev6";
+	private const string BuildStamp = "0.2.2";
 
 	private static KCModHelper helper;
 
