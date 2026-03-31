@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using UnityEngine;
 
 public class ScreenReaderLoadMod
@@ -14,7 +16,7 @@ public class ScreenReaderLoadMod
 	private void Preload(KCModHelper modHelper)
 	{
 		helper = modHelper;
-		Log("Preload started. Build " + BuildStamp + ". Game version " + Application.version + ". Unity " + Application.unityVersion + ".");
+		Log("Preload started. Build " + BuildStamp + ". Game version " + Application.version + ". Unity " + Application.unityVersion + ". Mod path " + modHelper.modPath + ". Language " + GetCurrentLanguageName() + ".");
 		KCTolk.Configure(modHelper.modPath, Log);
 		bool initialized = KCTolk.Initialize();
 		Log("Preload finished. Tolk initialized: " + initialized);
@@ -59,5 +61,45 @@ public class ScreenReaderLoadMod
 		{
 			Debug.Log(fullMessage);
 		}
+	}
+
+	private static string GetCurrentLanguageName()
+	{
+		try
+		{
+			Type localizationManagerType = Type.GetType("I2.Loc.LocalizationManager, Assembly-CSharp-firstpass")
+				?? Type.GetType("I2.Loc.LocalizationManager, Assembly-CSharp");
+			if (localizationManagerType == null)
+			{
+				return "unknown";
+			}
+
+			PropertyInfo currentLanguageProperty = localizationManagerType.GetProperty("CurrentLanguage", BindingFlags.Public | BindingFlags.Static);
+			if (currentLanguageProperty != null)
+			{
+				object value = currentLanguageProperty.GetValue(null, null);
+				string language = value as string;
+				if (!string.IsNullOrEmpty(language))
+				{
+					return language;
+				}
+			}
+
+			FieldInfo currentLanguageField = localizationManagerType.GetField("CurrentLanguage", BindingFlags.Public | BindingFlags.Static);
+			if (currentLanguageField != null)
+			{
+				object value = currentLanguageField.GetValue(null);
+				string language = value as string;
+				if (!string.IsNullOrEmpty(language))
+				{
+					return language;
+				}
+			}
+		}
+		catch
+		{
+		}
+
+		return "unknown";
 	}
 }
