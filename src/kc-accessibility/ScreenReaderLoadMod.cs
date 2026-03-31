@@ -3,7 +3,7 @@ using UnityEngine;
 public class ScreenReaderLoadMod
 {
 	private const string InitialAnnouncement = "Kingdoms and Castles loaded.";
-	private const string BuildStamp = "0.2.2";
+	private const string BuildStamp = "0.2.3";
 
 	private static KCModHelper helper;
 
@@ -14,7 +14,7 @@ public class ScreenReaderLoadMod
 	private void Preload(KCModHelper modHelper)
 	{
 		helper = modHelper;
-		Log("Preload started. Build " + BuildStamp + ".");
+		Log("Preload started. Build " + BuildStamp + ". Game version " + Application.version + ". Unity " + Application.unityVersion + ".");
 		KCTolk.Configure(modHelper.modPath, Log);
 		bool initialized = KCTolk.Initialize();
 		Log("Preload finished. Tolk initialized: " + initialized);

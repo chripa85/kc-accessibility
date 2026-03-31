@@ -15,6 +15,26 @@ public partial class ScreenReaderAccessibilityBehaviour
 			return items;
 		}
 
+		GameObject preferredRoot = FindTopLevelMainMenuButtonContainer(root) ?? root;
+		Button[] buttons = preferredRoot.GetComponentsInChildren<Button>(includeInactive: false);
+		for (int i = 0; i < buttons.Length; i++)
+		{
+			Button button = buttons[i];
+			if (button == null || !button.gameObject.activeInHierarchy || !button.interactable)
+			{
+				continue;
+			}
+
+			items.Add(button);
+		}
+
+		items.Sort(CompareVerticalMenuButtons);
+		LogTopLevelMainMenuButtons(preferredRoot == root ? "dynamic-root" : "dynamic-button-container", items);
+		if (items.Count > 0)
+		{
+			return items;
+		}
+
 		string[] labels = new string[]
 		{
 			"New",
@@ -35,7 +55,129 @@ public partial class ScreenReaderAccessibilityBehaviour
 			}
 		}
 
+		LogTopLevelMainMenuButtons("fallback", items);
 		return items;
+	}
+
+	private static GameObject FindTopLevelMainMenuButtonContainer(GameObject root)
+	{
+		if (root == null)
+		{
+			return null;
+		}
+
+		Transform[] transforms = root.GetComponentsInChildren<Transform>(includeInactive: false);
+		for (int i = 0; i < transforms.Length; i++)
+		{
+			Transform candidate = transforms[i];
+			if (candidate == null || candidate.gameObject == null)
+			{
+				continue;
+			}
+
+			if (string.Equals(candidate.name, "ButtonContainer", StringComparison.OrdinalIgnoreCase))
+			{
+				return candidate.gameObject;
+			}
+		}
+
+		return null;
+	}
+
+	private void LogTopLevelMainMenuButtons(string source, List<Button> items)
+	{
+		if (items == null)
+		{
+			log("Top-level main menu discovery source=" + source + " returned null.");
+			return;
+		}
+
+		log("Top-level main menu discovery source=" + source + " count=" + items.Count + ".");
+		for (int i = 0; i < items.Count; i++)
+		{
+			log("Top-level main menu item " + i + ": " + DescribeTopLevelMainMenuButtonForLog(items[i]));
+		}
+	}
+
+	private string DescribeTopLevelMainMenuButtonForLog(Button button)
+	{
+		if (button == null)
+		{
+			return "null";
+		}
+
+		ConsoleUIItem consoleItem = GetConsoleItemForComponent(button);
+		Transform transform = button.transform;
+		Vector3 position = transform.position;
+		string label = GetComponentLabel(button);
+		string objectName = button.gameObject.name;
+		string parentName = transform.parent != null ? transform.parent.name : "none";
+		string consoleItemName = consoleItem != null ? consoleItem.gameObject.name : "none";
+		string consoleItemType = consoleItem != null ? consoleItem.GetType().Name : "none";
+		string localizeTerm = GetPrimaryLocalizationTerm(button.gameObject);
+		return "label=" + SafeLogValue(label)
+			+ ", object=" + SafeLogValue(objectName)
+			+ ", parent=" + SafeLogValue(parentName)
+			+ ", type=" + button.GetType().Name
+			+ ", consoleItem=" + SafeLogValue(consoleItemName)
+			+ ", consoleItemType=" + SafeLogValue(consoleItemType)
+			+ ", localize=" + SafeLogValue(localizeTerm)
+			+ ", pos=(" + position.x.ToString("F1") + "," + position.y.ToString("F1") + "," + position.z.ToString("F1") + ")";
+	}
+
+	private static string SafeLogValue(string value)
+	{
+		return string.IsNullOrEmpty(value) ? "<empty>" : value;
+	}
+
+	private static string GetPrimaryLocalizationTerm(GameObject obj)
+	{
+		if (obj == null)
+		{
+			return string.Empty;
+		}
+
+		I2.Loc.Localize localize = obj.GetComponent<I2.Loc.Localize>() ?? obj.GetComponentInChildren<I2.Loc.Localize>(includeInactive: false);
+		return localize != null ? CleanText(localize.Term) : string.Empty;
+	}
+
+	private static int CompareVerticalMenuButtons(Button left, Button right)
+	{
+		if (left == null && right == null)
+		{
+			return 0;
+		}
+
+		if (left == null)
+		{
+			return 1;
+		}
+
+		if (right == null)
+		{
+			return -1;
+		}
+
+		Vector3 leftPosition = left.transform.position;
+		Vector3 rightPosition = right.transform.position;
+		float yDelta = Mathf.Abs(leftPosition.y - rightPosition.y);
+		if (yDelta > 0.5f)
+		{
+			return rightPosition.y.CompareTo(leftPosition.y);
+		}
+
+		float xDelta = Mathf.Abs(leftPosition.x - rightPosition.x);
+		if (xDelta > 0.5f)
+		{
+			return leftPosition.x.CompareTo(rightPosition.x);
+		}
+
+		return string.Compare(GetStableMenuButtonName(left), GetStableMenuButtonName(right), StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static string GetStableMenuButtonName(Button button)
+	{
+		return button != null ? button.gameObject.name : string.Empty;
 	}
 
 	private List<Button> GetChooseModeButtons()

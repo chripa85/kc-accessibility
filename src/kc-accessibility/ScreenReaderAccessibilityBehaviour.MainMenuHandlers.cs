@@ -33,9 +33,19 @@ public partial class ScreenReaderAccessibilityBehaviour
 			return false;
 		}
 
+		ConsoleUIItem focusedItem = GetFocusedItem();
+		if (focusedItem != null)
+		{
+			int focusedIndex = FindButtonIndexForConsoleItem(items, focusedItem);
+			if (focusedIndex >= 0)
+			{
+				topLevelMenuIndex = focusedIndex;
+			}
+		}
+
 		if (IsNavigateDownPressed() || IsNavigateNextPressed())
 		{
-			topLevelMenuIndex = topLevelMenuIndex < 0 ? Math.Min(1, items.Count - 1) : Mathf.Min(topLevelMenuIndex + 1, items.Count - 1);
+			topLevelMenuIndex = topLevelMenuIndex < 0 ? 0 : Mathf.Min(topLevelMenuIndex + 1, items.Count - 1);
 			FocusTopLevelMainMenuButton(items[topLevelMenuIndex]);
 			return true;
 		}
@@ -54,6 +64,31 @@ public partial class ScreenReaderAccessibilityBehaviour
 		}
 
 		return false;
+	}
+
+	private int FindButtonIndexForConsoleItem(List<Button> items, ConsoleUIItem focusedItem)
+	{
+		if (items == null || focusedItem == null)
+		{
+			return -1;
+		}
+
+		for (int i = 0; i < items.Count; i++)
+		{
+			Button button = items[i];
+			if (button == null)
+			{
+				continue;
+			}
+
+			ConsoleUIItem buttonItem = GetConsoleItemForComponent(button);
+			if (buttonItem == focusedItem)
+			{
+				return i;
+			}
+		}
+
+		return -1;
 	}
 
 	private bool TryHandleChooseModeNavigation()
