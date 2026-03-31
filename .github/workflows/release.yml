@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up MSBuild
         uses: microsoft/setup-msbuild@v2
@@ -41,6 +43,38 @@ jobs:
           "version=$version" >> $env:GITHUB_OUTPUT
           "asset_name=$asset" >> $env:GITHUB_OUTPUT
 
+      - name: Generate release notes
+        id: release_notes
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        run: |
+          $currentTag = "${{ steps.release_meta.outputs.version }}"
+          $allTags = @(git tag --sort=creatordate)
+          $currentIndex = [Array]::IndexOf($allTags, $currentTag)
+          $previousTag = $null
+          if ($currentIndex -gt 0) {
+            $previousTag = $allTags[$currentIndex - 1]
+          }
+
+          $notesPath = "dist\release-notes.txt"
+          $lines = @("Changes in $currentTag", "")
+
+          if ($previousTag) {
+            $lines += "Since ${previousTag}:"
+            $commitLines = git log "$previousTag..$currentTag" --pretty=format:"- %s"
+          } else {
+            $lines += "Initial release:"
+            $commitLines = git log "$currentTag" --pretty=format:"- %s"
+          }
+
+          if (-not $commitLines) {
+            $commitLines = @("- No commit subjects found.")
+          }
+
+          $lines += $commitLines
+          Set-Content -Path $notesPath -Value $lines
+          "notes_path=$notesPath" >> $env:GITHUB_OUTPUT
+
       - name: Upload packaged mod artifact
         uses: actions/upload-artifact@v4
         with:
@@ -53,5 +87,5 @@ jobs:
         with:
           tag_name: ${{ steps.release_meta.outputs.version }}
           name: ${{ steps.release_meta.outputs.version }}
-          generate_release_notes: true
+          body_path: ${{ steps.release_notes.outputs.notes_path }}
           files: dist/${{ steps.release_meta.outputs.asset_name }}

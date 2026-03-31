@@ -2,5 +2,5 @@
   "Name": "kc-accessibility",
   "Author": "chris",
   "Description": "Adds screen-reader accessibility support for menus and gameplay.",
-  "ModVersion": "0.2.3"
+  "ModVersion": "0.2.4"
 }
