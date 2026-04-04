@@ -6,9 +6,11 @@ Reference assemblies and native dependencies are in `lib/` (for example `Assembl
 Generated/staged mod files are in `mod/kc-accessibility/` and should be treated as build output.  
 Helper scripts are in `scripts/`:
 - `stage-mod.cmd` copies built artifacts and source payload into `mod/...`
-- `deploy-mod-to-game.cmd` copies the staged mod into the game install
+- `deploy-mod-to-game.cmd` copies the staged mod into supported local game installs when their root folders exist
 
 Public documentation lives under `doc/`. Local-only research, decompiled references, and machine-specific notes belong under ignored `local/`.
+
+This mod is source-distributed: the game compiles the shipped `.cs` files on the player's machine against that player's game assemblies. Local builds against `lib/` are necessary but not always sufficient to prove player-side compatibility.
 
 ## Build, Test, and Development Commands
 - `msbuild src\kc-accessibility\kc-accessibility.csproj /t:Build /p:Configuration=Debug`  
@@ -16,7 +18,7 @@ Public documentation lives under `doc/`. Local-only research, decompiled referen
 - `cmd /c scripts\stage-mod.cmd "C:\...\src\kc-accessibility\"`  
   Manually refreshes `mod/kc-accessibility/`.
 - `cmd /c scripts\deploy-mod-to-game.cmd`  
-  Deploys staged files to the local game install configured by the script.
+  Deploys staged files to the configured non-Steam and Steam game installs when present; the command succeeds if at least one target deploys successfully.
 
 ## Coding Style & Naming Conventions
 Use C# with 4-space indentation and braces on new lines (existing repository style).  
@@ -44,3 +46,4 @@ PRs should include:
 ## Agent-Specific Instructions
 - You should not make manual changes to the `mod` folder. Whenever the stage script is executed the files in there are modified.
 - You should not change files deployed as this is done by the deploy script.
+- The deploy script may target both the standalone install and the default Steam install; treat a missing single target as non-fatal if another target deploys successfully.
