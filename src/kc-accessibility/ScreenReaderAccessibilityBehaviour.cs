@@ -340,12 +340,7 @@ public partial class ScreenReaderAccessibilityBehaviour : MonoBehaviour
 		try
 		{
 			suppressedHoverAnnouncements++;
-			GamepadControl.inst.isControllerActive = true;
-			if (GamepadControl.inst.controllerUpdate != null)
-			{
-				GamepadControl.inst.controllerUpdate(true);
-			}
-			GamepadControl.inst.PrepForGamepad();
+			PrimeGamepadControlForKeyboardNavigation();
 			log("Enabled keyboard-driven accessibility navigation.");
 		}
 		catch (Exception ex)

@@ -10,6 +10,8 @@ using UnityEngine.UI;
 public partial class ScreenReaderAccessibilityBehaviour
 {
 	private static readonly FieldInfo GameUiCursorModeField = typeof(GameUI).GetField("currCursorMode", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+	private static readonly FieldInfo GamepadControlIsControllerActiveField = typeof(GamepadControl).GetField("isControllerActive", BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+	private static readonly FieldInfo GamepadControlControllerUpdateField = typeof(GamepadControl).GetField("controllerUpdate", BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 	private const int SettingsSaveIndex = -2;
 
 	private sealed class GameplayTileElement
@@ -260,6 +262,31 @@ public partial class ScreenReaderAccessibilityBehaviour
 		}
 
 		return IsIslandInfoPanelVisible(GameUI.inst);
+	}
+
+	private void PrimeGamepadControlForKeyboardNavigation()
+	{
+		GamepadControl control = GamepadControl.inst;
+		if (control == null)
+		{
+			return;
+		}
+
+		if (GamepadControlIsControllerActiveField != null)
+		{
+			GamepadControlIsControllerActiveField.SetValue(
+				GamepadControlIsControllerActiveField.IsStatic ? null : (object)control,
+				true);
+		}
+
+		if (GamepadControlControllerUpdateField != null)
+		{
+			Delegate controllerUpdate = GamepadControlControllerUpdateField.GetValue(
+				GamepadControlControllerUpdateField.IsStatic ? null : (object)control) as Delegate;
+			controllerUpdate?.DynamicInvoke(true);
+		}
+
+		control.PrepForGamepad();
 	}
 
 	private static bool IsIslandInfoPanelVisible(GameUI gameUi)
